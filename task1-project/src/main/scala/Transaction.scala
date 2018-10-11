@@ -8,7 +8,9 @@ object TransactionStatus extends Enumeration {
 class TransactionQueue {
 
     // Remove and return the first element from the queue
-    def pop: Transaction = ???
+    def pop: Transaction = {
+      
+    }
 
     // Return whether the queue is empty
     def isEmpty: Boolean = ???
