@@ -6,23 +6,30 @@ object TransactionStatus extends Enumeration {
 }
 
 class TransactionQueue {
+  
+    var transactions = mutable.Queue[Transaction]();
 
     // Remove and return the first element from the queue
     def pop: Transaction = {
-      
+      return transactions.dequeue
     }
 
     // Return whether the queue is empty
-    def isEmpty: Boolean = ???
+    def isEmpty: Boolean = {return transactions.isEmpty}
 
     // Add new element to the back of the queue
-    def push(t: Transaction): Unit = ???
+    def push(t: Transaction): Unit = {transactions.enqueue(t)}
 
     // Return the first element from the queue without removing it
-    def peek: Transaction = ???
+    def peek: Transaction = {
+      val copTransactions = transactions.clone
+      return copTransactions.dequeue
+    }
 
     // Return an iterator to allow you to iterate over the queue
-    def iterator: Iterator[Transaction] = ???
+    def iterator: Iterator[Transaction] = {
+      return transactions.iterator
+    }
 }
 
 class Transaction(val transactionsQueue: TransactionQueue,
