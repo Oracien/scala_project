@@ -30,6 +30,10 @@ class TransactionQueue {
     def iterator: Iterator[Transaction] = {
       return transactions.iterator
     }
+    
+    def length: Int = {
+      return transactions.length
+    }
 }
 
 class Transaction(val transactionsQueue: TransactionQueue,
@@ -37,15 +41,21 @@ class Transaction(val transactionsQueue: TransactionQueue,
                   val from: Account,
                   val to: Account,
                   val amount: Double,
-                  val allowedAttemps: Int) extends Runnable {
+                  val allowedAttempts: Int) extends Runnable {
 
   var status: TransactionStatus.Value = TransactionStatus.PENDING
 
   override def run: Unit = {
 
       def doTransaction() = {
+        try {
           from withdraw amount
           to deposit amount
+          status = TransactionStatus.SUCCESS
+        } catch {
+          case e: NoSufficientFundsException => status = TransactionStatus.FAILED;
+          case e: IllegalAmountException => status = TransactionStatus.FAILED;
+        }
       }
 
       if (from.uid < to.uid) from synchronized {
@@ -61,4 +71,8 @@ class Transaction(val transactionsQueue: TransactionQueue,
       // Extend this method to satisfy requirements.
 
     }
+  
+  override def toString: String = {
+    return "Transfering " + amount + " from " + from + " to " + to + " with " + allowedAttempts + " remaining"
+  }
 }

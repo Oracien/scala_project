@@ -11,13 +11,13 @@ class Account(val bank: Bank, initialBalance: Double) {
     val balance = new Balance(initialBalance)
     val uid = bank.generateAccountId
 
-    def withdraw(amount: Double): Unit = {
+    def withdraw(amount: Double): Unit = this.synchronized {
       if (amount < 0) throw new IllegalAmountException("Amount to withdraw must be positive");
       if (amount > balance.getAmount) throw new NoSufficientFundsException("Cannot overdraw account. Balance must be greater than amount")
       balance.reduce(amount)
     }
     
-    def deposit(amount: Double): Unit = {
+    def deposit(amount: Double): Unit = this.synchronized {
       if (amount < 0) throw new IllegalAmountException("Amount to deposit must be positive");
       balance.add(amount)
     }
