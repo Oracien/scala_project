@@ -10,7 +10,7 @@ class TransactionQueue {
     var transactions = mutable.Queue[Transaction]();
 
     // Remove and return the first element from the queue
-    def pop: Transaction = {
+    def pop: Transaction = this.synchronized {
       return transactions.dequeue
     }
 
@@ -18,7 +18,7 @@ class TransactionQueue {
     def isEmpty: Boolean = {return transactions.isEmpty}
 
     // Add new element to the back of the queue
-    def push(t: Transaction): Unit = {transactions.enqueue(t)}
+    def push(t: Transaction): Unit = this.synchronized {transactions.enqueue(t)}
 
     // Return the first element from the queue without removing it
     def peek: Transaction = {
