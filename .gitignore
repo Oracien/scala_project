@@ -1,2 +1,11 @@
 task1-project/project
 task1-project/target
+
+# OS crap
+Thumbs.db
+.Trashes
+ehthumbs.db
+._*
+.Spotlight-V100
+.DS_Store
+.DS_Store?
