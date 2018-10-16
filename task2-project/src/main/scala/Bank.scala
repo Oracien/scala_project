@@ -16,29 +16,41 @@ class Bank(val bankId: String) extends Actor {
     val accountCounter = new AtomicInteger(1000)
 
     def createAccount(initialBalance: Double): ActorRef = {
-        // Should create a new Account Actor and return its actor reference. Accounts should be assigned with unique ids (increment with 1).
-        ???
+        BankManager.createAccount(accountId = accountCounter.getAndIncrement().toString, bankId = bankId, initialBalance = initialBalance)
     }
 
     def findAccount(accountId: String): Option[ActorRef] = {
-        // Use BankManager to look up an account with ID accountId
-        ???
+        try {
+            Some(BankManager.findAccount(bankId = bankId, accountId = accountId))
+        } catch {
+            case _: NoSuchElementException => None
+        }
     }
 
     def findOtherBank(bankId: String): Option[ActorRef] = {
-        // Use BankManager to look up a different bank with ID bankId
-        ???
+        try {
+            Some(BankManager.findBank(bankId))
+        } catch {
+            case _: NoSuchElementException => None
+        }
     }
 
     override def receive = {
-        case CreateAccountRequest(initialBalance) => ??? // Create a new account
-        case GetAccountRequest(id) => ??? // Return account
+        case CreateAccountRequest(initialBalance) => sender ! createAccount(initialBalance) // Create a new account
+        case GetAccountRequest(id) => sender ! findAccount(accountId = id) // Return account
         case IdentifyActor => sender ! this
         case t: Transaction => processTransaction(t)
 
         case t: TransactionRequestReceipt => {
-        // Forward receipt
-        ???
+            val isInternal = t.toAccountNumber.length <= 4
+            val toBankId = if (isInternal) bankId else t.toAccountNumber.substring(0, 4)
+            val toAccountId = if (isInternal) t.toAccountNumber else t.toAccountNumber.substring(4)
+
+            if (isInternal || toBankId == bankId) {
+                findAccount(toAccountId).get ! t
+            } else {
+                findOtherBank(toBankId).get ! t
+            }
         }
 
         case msg => ???
@@ -50,9 +62,24 @@ class Bank(val bankId: String) extends Actor {
         val toBankId = if (isInternal) bankId else t.to.substring(0, 4)
         val toAccountId = if (isInternal) t.to else t.to.substring(4)
         val transactionStatus = t.status
-        
-        // This method should forward Transaction t to an account or another bank, depending on the "to"-address.
-        // HINT: Make use of the variables that have been defined above.
-        ???
+
+        // TODO: Fix code reuse?
+        if (isInternal || toBankId == bankId) {
+            findAccount(toAccountId) match {
+                case None =>
+                    t.status = TransactionStatus.FAILED
+                    sender ! TransactionRequestReceipt(t.from, t.id, t)
+                case Some(account: ActorRef) =>
+                    account ! t
+            }
+        } else {
+            findOtherBank(toBankId) match {
+                case None =>
+                    t.status = TransactionStatus.FAILED
+                    sender ! TransactionRequestReceipt(t.from, t.id, t)
+                case Some(bank: ActorRef) =>
+                    bank ! t
+            }
+        }
     }
 }
