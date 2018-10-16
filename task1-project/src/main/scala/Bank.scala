@@ -3,7 +3,7 @@ import scala.concurrent.forkjoin.ForkJoinPool
 
 class Bank(val allowedAttempts: Integer = 3) {
 
-    private val uid = 2001 //TODO: fix
+    val uid = "0"*3 + scala.util.Random.nextInt(10000).toString takeRight 4 //probably no collisions
     private var counter = 0
     private val transactionsQueue: TransactionQueue = new TransactionQueue()
     private val processedTransactions: TransactionQueue = new TransactionQueue()

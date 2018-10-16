@@ -30,5 +30,6 @@ class Account(val bank: Bank, initialBalance: Double) {
         bank addTransactionToQueue (this, account, amount)
     }
 
-
+    override def toString:String =
+        this.bank.uid + ("0"*4 + this.uid.toString takeRight 4)
 }
