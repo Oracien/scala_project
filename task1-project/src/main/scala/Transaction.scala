@@ -68,8 +68,6 @@ class Transaction(val transactionsQueue: TransactionQueue,
           }
       }
 
-      // Extend this method to satisfy requirements.
-
     }
   
   override def toString: String = {
