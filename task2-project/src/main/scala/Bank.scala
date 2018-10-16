@@ -16,7 +16,7 @@ class Bank(val bankId: String) extends Actor {
     val accountCounter = new AtomicInteger(1000)
 
     def createAccount(initialBalance: Double): ActorRef = {
-        BankManager.createAccount(accountId = accountCounter.getAndIncrement().toString, bankId = bankId, initialBalance = initialBalance)
+        BankManager.createAccount(accountId = accountCounter.incrementAndGet().toString, bankId = bankId, initialBalance = initialBalance)
     }
 
     def findAccount(accountId: String): Option[ActorRef] = {
@@ -46,6 +46,7 @@ class Bank(val bankId: String) extends Actor {
             val toBankId = if (isInternal) bankId else t.toAccountNumber.substring(0, 4)
             val toAccountId = if (isInternal) t.toAccountNumber else t.toAccountNumber.substring(4)
 
+            // Assume our recipient exists
             if (isInternal || toBankId == bankId) {
                 findAccount(toAccountId).get ! t
             } else {
